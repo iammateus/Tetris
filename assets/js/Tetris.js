@@ -52,7 +52,7 @@ Tetris.prototype.run = function(arrayShape, shapePosition){
 		
 		self.clearTemporary();
 
-		if(!(self.detectCollusion(arrayShape, shapePosition))){
+		if(!(self.detectCollision(arrayShape, shapePosition))){
 	
 			self.updateElementPosition(arrayShape, shapePosition);
 
@@ -85,7 +85,7 @@ Tetris.prototype.clearTemporary = function(){
 
 }
 
-Tetris.prototype.detectCollusion = function(arrayShape, shapePosition){
+Tetris.prototype.detectCollision = function(arrayShape, shapePosition){
 
 	var isColliding = false;
 
