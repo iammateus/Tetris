@@ -7,7 +7,7 @@ var Tetris = function(params){
 	this.tetrisBlocks = [];
 
 	this.build();
-	this.run();
+	this.beginPieceCicle();
 	
 };
 
@@ -20,21 +20,19 @@ Tetris.prototype.build = function(){
 		var row = [];
 
 		for(var columns_counter = 0;columns_counter < 10; columns_counter++){
-	
-			row.push(null);
-
+			row.push(rows_counter === 5 ? {color: "black"} : null);
 		}
 
 		rows.push(row);
-
 	}
 	
 	this.tetrisBlocks = rows;
 
 	this.visual.build();
+
 }
 
-Tetris.prototype.run = function(){
+Tetris.prototype.beginPieceCicle = function(){
 
 	var arrayShape = this.createArrayShape();
 	
@@ -43,13 +41,47 @@ Tetris.prototype.run = function(){
 		bottomPosition: -1,
 	}
 
-	while(!(this.detectCollusion(arrayShape, shapePosition))){
+	this.run(arrayShape, shapePosition)
+}
 
-		this.dropShapeElement(arrayShape, shapePosition);
+Tetris.prototype.run = function(arrayShape, shapePosition){
+	
+	var self = this;
+
+	setTimeout(function(){ 
 		
-		shapePosition.bottomPosition++;
+		self.clearTemporary();
+
+		if(!(self.detectCollusion(arrayShape, shapePosition))){
+	
+			self.updateElementPosition(arrayShape, shapePosition);
+
+			shapePosition.bottomPosition++;
+			
+			console.log(self.tetrisBlocks);
+			
+			self.run(arrayShape, shapePosition);
+		}
 		
-	}	
+		self.visual.update(self.tetrisBlocks);
+		
+	}, 1000);
+
+}
+
+Tetris.prototype.clearTemporary = function(){
+	
+	for(var rows_counter = 0;rows_counter < this.tetrisBlocks.length; rows_counter++){
+
+		for(var columns_counter = 0;columns_counter < this.tetrisBlocks[rows_counter].length; columns_counter++){
+
+			if(this.tetrisBlocks[rows_counter][columns_counter] !== null && this.tetrisBlocks[rows_counter][columns_counter].isTemporary){
+				this.tetrisBlocks[rows_counter][columns_counter] = null;
+			}
+
+		}
+
+	}
 
 }
 
@@ -59,8 +91,6 @@ Tetris.prototype.detectCollusion = function(arrayShape, shapePosition){
 
 	var intendedShapePosition = JSON.parse(JSON.stringify(shapePosition));
 	intendedShapePosition.bottomPosition++;
-
-	//console.log(intendedShapePosition);
 
 	//Calculating intended top position
 	intendedShapePosition.topPosition = intendedShapePosition.bottomPosition - (arrayShape.length - 1);
@@ -95,7 +125,7 @@ Tetris.prototype.detectCollusion = function(arrayShape, shapePosition){
 
 }
 
-Tetris.prototype.dropShapeElement = function(arrayShape, shapePosition){
+Tetris.prototype.updateElementPosition = function(arrayShape, shapePosition){
 
 	var intendedShapePosition = JSON.parse(JSON.stringify(shapePosition));
 	intendedShapePosition.bottomPosition++;
@@ -110,8 +140,9 @@ Tetris.prototype.dropShapeElement = function(arrayShape, shapePosition){
 			var tretisBlocksRowIndex = intendedShapePosition.topPosition + shapeRowsCounter;
 			var tretisBlocksColumnIndex = intendedShapePosition.leftPosition + shapeColumnsCounter;
 			
-			if(typeof this.tetrisBlocks[tretisBlocksRowIndex] !== "undefined"){
+			if(typeof this.tetrisBlocks[tretisBlocksRowIndex] !== "undefined" && arrayShape[shapeRowsCounter][shapeColumnsCounter] !== null){
 				this.tetrisBlocks[tretisBlocksRowIndex][tretisBlocksColumnIndex] = arrayShape[shapeRowsCounter][shapeColumnsCounter];
+				this.tetrisBlocks[tretisBlocksRowIndex][tretisBlocksColumnIndex].isTemporary = intendedShapePosition.bottomPosition !== 15;
 			}
 
 		}
