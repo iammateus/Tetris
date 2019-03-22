@@ -1,0 +1,27 @@
+*{
+	padding: 0;
+	margin: 0;
+	box-sizing: border-box
+}
+
+#tetris{
+	width: 301px;
+	height: 480px;
+	border: solid 1px;
+	border-right: none;
+	border-bottom: none;
+	margin: auto;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	position: fixed;
+}
+
+.block{
+	width: 30px;
+	height:30px;
+	float: left;
+	border-right: solid 1px;
+	border-bottom: solid 1px;
+}
