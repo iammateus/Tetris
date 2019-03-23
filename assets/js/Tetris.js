@@ -126,19 +126,20 @@ Tetris.prototype.clearTemporary = function(){
 
 }
 
-Tetris.prototype.detectCollision = function(){
+Tetris.prototype.detectCollision = function(arrayShape){
 
+	var shapeToTest = arrayShape ? arrayShape : this.arrayShape;
 	var isColliding = 0;
 
 	var intendedShapePosition = JSON.parse(JSON.stringify(this.shapePosition));
 	intendedShapePosition.bottomPosition++;
 
 	//Calculating intended top position
-	intendedShapePosition.topPosition = intendedShapePosition.bottomPosition - (this.arrayShape.length - 1);
+	intendedShapePosition.topPosition = intendedShapePosition.bottomPosition - (shapeToTest.length - 1);
 
-	for(var shapeRowsCounter = 0;shapeRowsCounter < this.arrayShape.length; shapeRowsCounter++){
+	for(var shapeRowsCounter = 0;shapeRowsCounter < shapeToTest.length; shapeRowsCounter++){
 
-		for(var shapeColumnsCounter = 0;shapeColumnsCounter < this.arrayShape[shapeRowsCounter].length; shapeColumnsCounter++){
+		for(var shapeColumnsCounter = 0;shapeColumnsCounter < shapeToTest[shapeRowsCounter].length; shapeColumnsCounter++){
 
 			var tretisBlocksRowIndex = intendedShapePosition.topPosition + shapeRowsCounter;
 			var tretisBlocksColumnIndex = intendedShapePosition.leftPosition + shapeColumnsCounter;
@@ -151,7 +152,7 @@ Tetris.prototype.detectCollision = function(){
 					console.log(this.tetrisBlocks[tretisBlocksRowIndex][tretisBlocksColumnIndex]);
 					console.log(this.tetrisBlocks[tretisBlocksRowIndex][tretisBlocksColumnIndex] === null); 
 				*/
-				if(this.tetrisBlocks[tretisBlocksRowIndex][tretisBlocksColumnIndex] !== null && this.arrayShape[shapeRowsCounter][shapeColumnsCounter] !== null){
+				if(this.tetrisBlocks[tretisBlocksRowIndex][tretisBlocksColumnIndex] !== null && shapeToTest[shapeRowsCounter][shapeColumnsCounter] !== null && !this.tetrisBlocks[tretisBlocksRowIndex][tretisBlocksColumnIndex].isTemporary){
 					isColliding++;
 				}
 
@@ -242,6 +243,8 @@ Tetris.prototype.rotateShape = function(){
 
 	}
 
-	this.arrayShape = rotatedShape;
-	
+	if(!this.detectCollision(rotatedShape)){
+		this.arrayShape = rotatedShape;
+	}
+
 }
