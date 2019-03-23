@@ -5,10 +5,12 @@ var Tetris = function(params){
 	this.config = params;
 	this.visual = new TetrisVisual(params.container);
 	this.tetrisBlocks = [];
+	this.shapePosition = {};
 
 	this.build();
+	this.visual.build();
 	this.beginPieceCicle();
-	
+
 };
 
 Tetris.prototype.build = function(){
@@ -20,7 +22,8 @@ Tetris.prototype.build = function(){
 		var row = [];
 
 		for(var columns_counter = 0;columns_counter < 10; columns_counter++){
-			row.push(rows_counter === 5 ? {color: "black"} : null);
+			//row.push(rows_counter === 5 ? {color: "black"} : null);
+			row.push(null);
 		}
 
 		rows.push(row);
@@ -28,23 +31,21 @@ Tetris.prototype.build = function(){
 	
 	this.tetrisBlocks = rows;
 
-	this.visual.build();
-
 }
 
 Tetris.prototype.beginPieceCicle = function(){
 
 	var arrayShape = this.createArrayShape();
 	
-	var shapePosition = {
+	this.shapePosition = {
 		leftPosition: 0, 
 		bottomPosition: -1,
 	}
 
-	this.run(arrayShape, shapePosition)
+	this.run(arrayShape)
 }
 
-Tetris.prototype.run = function(arrayShape, shapePosition){
+Tetris.prototype.run = function(arrayShape){
 	
 	var self = this;
 
@@ -52,15 +53,17 @@ Tetris.prototype.run = function(arrayShape, shapePosition){
 		
 		self.clearTemporary();
 
-		if(!(self.detectCollision(arrayShape, shapePosition))){
+		if(!(self.detectCollision(arrayShape))){
 	
-			self.updateElementPosition(arrayShape, shapePosition);
+			self.updateElementPosition(arrayShape);
 
-			shapePosition.bottomPosition++;
+			self.shapePosition.bottomPosition++;
 			
 			console.log(self.tetrisBlocks);
 			
-			self.run(arrayShape, shapePosition);
+			self.run(arrayShape);
+		}else{
+			self.beginPieceCicle();
 		}
 		
 		self.visual.update(self.tetrisBlocks);
@@ -85,11 +88,11 @@ Tetris.prototype.clearTemporary = function(){
 
 }
 
-Tetris.prototype.detectCollision = function(arrayShape, shapePosition){
+Tetris.prototype.detectCollision = function(arrayShape){
 
-	var isColliding = false;
+	var isColliding = 0;
 
-	var intendedShapePosition = JSON.parse(JSON.stringify(shapePosition));
+	var intendedShapePosition = JSON.parse(JSON.stringify(this.shapePosition));
 	intendedShapePosition.bottomPosition++;
 
 	//Calculating intended top position
@@ -110,24 +113,25 @@ Tetris.prototype.detectCollision = function(arrayShape, shapePosition){
 					console.log(this.tetrisBlocks[tretisBlocksRowIndex][tretisBlocksColumnIndex]);
 					console.log(this.tetrisBlocks[tretisBlocksRowIndex][tretisBlocksColumnIndex] === null); 
 				*/
-
-				isColliding = this.tetrisBlocks[tretisBlocksRowIndex][tretisBlocksColumnIndex] !== null && arrayShape[shapeRowsCounter][shapeColumnsCounter] !== null;
+				if(this.tetrisBlocks[tretisBlocksRowIndex][tretisBlocksColumnIndex] !== null && arrayShape[shapeRowsCounter][shapeColumnsCounter] !== null){
+					isColliding++;
+				}
 
 			}else if(tretisBlocksRowIndex === 16){
-				isColliding = true;
+				isColliding++;
 			}
 
 		}
 
 	}
 
-	return isColliding;
+	return isColliding > 0;
 
 }
 
-Tetris.prototype.updateElementPosition = function(arrayShape, shapePosition){
+Tetris.prototype.updateElementPosition = function(arrayShape){
 
-	var intendedShapePosition = JSON.parse(JSON.stringify(shapePosition));
+	var intendedShapePosition = JSON.parse(JSON.stringify(this.shapePosition));
 	intendedShapePosition.bottomPosition++;
 
 	//Calculating intended top position
@@ -152,12 +156,18 @@ Tetris.prototype.updateElementPosition = function(arrayShape, shapePosition){
 }
 
 Tetris.prototype.createArrayShape = function(){
-	
-	//A basic array shape
-	var arrayShape = [
-		[null, {color: "black"}, null],
-		[{color: "black"}, {color: "black"}, {color: "black"}]
-	];
 
-	return arrayShape;
+	var arrayShapesArray = [
+		[
+			[{color: "black"}, {color: "black"}, {color: "black"}],
+			[null, {color: "black"}, null]
+		],
+		[
+			[{color: "black"}, {color: "black"}, {color: "black"}],
+			[null, null, {color: "black"}]
+		]
+	]
+	
+	return arrayShapesArray[Math.floor(Math.random() * 2)];
+		
 }
