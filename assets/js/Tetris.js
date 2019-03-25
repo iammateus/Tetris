@@ -55,13 +55,13 @@ Tetris.prototype.createEventsListeners = function(){
 
 		switch (event.code) {
 			case "Space":
-				self.rotateShape();
+				self.rotatePiece();
 			break;
 			case "ArrowLeft":
-				self.moveShapeTo("left");
+				self.movePieceTo("left");
 			break;
 			case "ArrowRight":
-				self.moveShapeTo("right");
+				self.movePieceTo("right");
 			break;
 			default:
 				console.log(event.code);
@@ -110,7 +110,7 @@ Tetris.prototype.runCircle = function(){
 		}else{
 
 			//If collision was detected stores current shape position and starts a new shape circle
-			self.fastenShapePosition();
+			self.fastenPiecePosition();
 			self.startPieceCircle();
 			
 		}
@@ -165,7 +165,7 @@ Tetris.prototype.detectCollision = function(bottomPositionIncrement, piecePositi
 
 }
 
-Tetris.prototype.fastenShapePosition = function(){
+Tetris.prototype.fastenPiecePosition = function(){
 
 	var intendedPiecePosition = JSON.parse(JSON.stringify(this.piecePosition));
 
@@ -262,9 +262,9 @@ Tetris.prototype.createPieceArray = function(){
 		
 }
 
-Tetris.prototype.rotateShape = function(){
+Tetris.prototype.rotatePiece = function(){
 	
-	var rotatedShape = [];
+	var rotatedPiece = [];
 
 	for(columnCounter = 0;columnCounter < this.pieceShape[0].length; columnCounter++){
 
@@ -276,46 +276,45 @@ Tetris.prototype.rotateShape = function(){
 	
 		}
 
-		rotatedShape.push(row);
+		rotatedPiece.push(row);
 
 	}
 
-	if(!this.detectCollision(0, null, rotatedShape)){
+	if(!this.detectCollision(0, null, rotatedPiece)){
 		this.clearTemporaryBlocks();
-		this.pieceShape = rotatedShape;
+		this.pieceShape = rotatedPiece;
 		this.updatePiecePosition();
 		this.visual.update(this.tetrisBlocks);
 	}
 
 }
 
-Tetris.prototype.moveShapeTo = function(direction){
+Tetris.prototype.movePieceTo = function(direction){
 
-	var movedShapePosition = JSON.parse(JSON.stringify(this.piecePosition));
+	var movedPiecePosition = JSON.parse(JSON.stringify(this.piecePosition));
 	var positionChanged = false;
 
 	if(direction === "left"){	
 		
 		if(this.piecePosition.leftPosition > 0){
-			movedShapePosition.leftPosition--;
+			movedPiecePosition.leftPosition--;
 			positionChanged = true;
 		}
 
 	}else if(direction === "right"){
 		
 		if(this.piecePosition.leftPosition < (10 - this.pieceShape[0].length)){
-			movedShapePosition.leftPosition++;
+			movedPiecePosition.leftPosition++;
 			positionChanged = true;
 		}
 		
 	}
 
-	if(positionChanged && !(this.detectCollision(0, movedShapePosition))){
-		this.piecePosition = movedShapePosition;
+	if(positionChanged && !(this.detectCollision(0, movedPiecePosition))){
+		this.piecePosition = movedPiecePosition;
 		this.clearTemporaryBlocks();
 		this.updatePiecePosition();
 		this.visual.update(this.tetrisBlocks);
 	}
 	
-
 }
