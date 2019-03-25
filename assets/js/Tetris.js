@@ -1,24 +1,32 @@
-//Tetris created by Mateus Soares <https://github.com/mateussoares1997>
+/*
+ *  Tetris created by Mateus Soares <https://github.com/mateussoares1997>
+ */
 
 var Tetris = function(params){
 
 	this.config = params;
 	this.visual = new TetrisVisual(params.container);
 	
-	//The main array  
+	//The main tetris array  
 	this.tetrisBlocks = [];
+
+	//Current shape position object
 	this.shapePosition = {};
 
-	this.build();
+	//Current shape object
+	this.arrayShape = [];
+
+	this.createBlocks();
 	this.visual.build();
+	this.createEventsListeners();
 
 	//Start first piece circle
 	this.startPieceCircle();
 
 };
 
-//Builds main array
-Tetris.prototype.build = function(){
+//Builds main tetris array
+Tetris.prototype.createBlocks = function(){
 
 	var rows = [];
 
@@ -39,10 +47,37 @@ Tetris.prototype.build = function(){
 
 }
 
+Tetris.prototype.createEventsListeners = function(){
+
+	var self = this;
+
+	window.addEventListener("keydown", function(e){
+
+		switch (e.code) {
+			case "Space":
+				self.rotateShape();
+			break;
+			case "ArrowLeft":
+				self.moveShapeTo("left");
+			break;
+			case "ArrowRight":
+				self.moveShapeTo("right");
+			break;
+			default:
+				console.log(e.code);
+			break;
+		}
+	
+	});
+
+}	
+
 Tetris.prototype.startPieceCircle = function(){
 
+	//Create a new random piece
 	this.arrayShape = this.createArrayShape();
 	
+	//Setting the initial position
 	this.shapePosition = {
 		leftPosition: 0, 
 		bottomPosition: -1,
@@ -61,7 +96,9 @@ Tetris.prototype.runCircle = function(){
 		self.clearTemporary();
 
 		//Checks whether collision will happen in the next block, if it's not so then update to the position of the next block
-		if(!(self.detectCollision())){
+		if(!(self.detectCollision(1))){
+
+			self.shapePosition.bottomPosition++;
 	
 			self.updateShapePosition();
 			
@@ -73,7 +110,7 @@ Tetris.prototype.runCircle = function(){
 		}else{
 
 			//If collision was detected stores current shape position and starts a new shape circle
-			self.storeShapePosition();
+			self.fastenShapePosition();
 			self.startPieceCircle();
 			
 		}
@@ -81,11 +118,54 @@ Tetris.prototype.runCircle = function(){
 		//Updates visual display every circle time
 		self.visual.update(self.tetrisBlocks);
 		
-	}, this.config.speed);
+	}, self.config.speed);
 
 }
 
-Tetris.prototype.storeShapePosition = function(){
+Tetris.prototype.detectCollision = function(bottomIncrement, shapePosition, arrayShape){
+
+	var shapePositionToTest = shapePosition ? shapePosition : this.shapePosition;
+	var shapeToTest = arrayShape ? arrayShape : this.arrayShape;
+	var isColliding = 0;
+
+	var intendedShapePosition = JSON.parse(JSON.stringify(shapePositionToTest));
+	intendedShapePosition.bottomPosition += bottomIncrement;
+
+	//Calculating intended top position
+	intendedShapePosition.topPosition = intendedShapePosition.bottomPosition - (shapeToTest.length - 1);
+
+	for(var shapeRowsCounter = 0;shapeRowsCounter < shapeToTest.length; shapeRowsCounter++){
+
+		for(var shapeColumnsCounter = 0;shapeColumnsCounter < shapeToTest[shapeRowsCounter].length; shapeColumnsCounter++){
+
+			var tretisBlocksRowIndex = intendedShapePosition.topPosition + shapeRowsCounter;
+			var tretisBlocksColumnIndex = intendedShapePosition.leftPosition + shapeColumnsCounter;
+
+			
+			if(typeof this.tetrisBlocks[tretisBlocksRowIndex] !== "undefined"){
+				/* 
+					console.log("tretisBlocksRowIndex", tretisBlocksRowIndex);
+					console.log("tretisBlocksColumnIndex", tretisBlocksColumnIndex);
+					console.log(this.tetrisBlocks[tretisBlocksRowIndex][tretisBlocksColumnIndex]);
+					console.log(this.tetrisBlocks[tretisBlocksRowIndex][tretisBlocksColumnIndex] === null); 
+				*/
+				if(this.tetrisBlocks[tretisBlocksRowIndex][tretisBlocksColumnIndex] !== null && shapeToTest[shapeRowsCounter][shapeColumnsCounter] !== null && !this.tetrisBlocks[tretisBlocksRowIndex][tretisBlocksColumnIndex].isTemporary){
+					isColliding++;
+				}
+
+			}else if(tretisBlocksRowIndex === 16){
+				isColliding++;
+			}
+
+		}
+
+	}
+
+	return isColliding > 0;
+
+}
+
+Tetris.prototype.fastenShapePosition = function(){
 
 	var intendedShapePosition = JSON.parse(JSON.stringify(this.shapePosition));
 
@@ -126,52 +206,9 @@ Tetris.prototype.clearTemporary = function(){
 
 }
 
-Tetris.prototype.detectCollision = function(arrayShape){
-
-	var shapeToTest = arrayShape ? arrayShape : this.arrayShape;
-	var isColliding = 0;
+Tetris.prototype.updateShapePosition = function(){
 
 	var intendedShapePosition = JSON.parse(JSON.stringify(this.shapePosition));
-	intendedShapePosition.bottomPosition++;
-
-	//Calculating intended top position
-	intendedShapePosition.topPosition = intendedShapePosition.bottomPosition - (shapeToTest.length - 1);
-
-	for(var shapeRowsCounter = 0;shapeRowsCounter < shapeToTest.length; shapeRowsCounter++){
-
-		for(var shapeColumnsCounter = 0;shapeColumnsCounter < shapeToTest[shapeRowsCounter].length; shapeColumnsCounter++){
-
-			var tretisBlocksRowIndex = intendedShapePosition.topPosition + shapeRowsCounter;
-			var tretisBlocksColumnIndex = intendedShapePosition.leftPosition + shapeColumnsCounter;
-
-			
-			if(typeof this.tetrisBlocks[tretisBlocksRowIndex] !== "undefined"){
-				/* 
-					console.log("tretisBlocksRowIndex", tretisBlocksRowIndex);
-					console.log("tretisBlocksColumnIndex", tretisBlocksColumnIndex);
-					console.log(this.tetrisBlocks[tretisBlocksRowIndex][tretisBlocksColumnIndex]);
-					console.log(this.tetrisBlocks[tretisBlocksRowIndex][tretisBlocksColumnIndex] === null); 
-				*/
-				if(this.tetrisBlocks[tretisBlocksRowIndex][tretisBlocksColumnIndex] !== null && shapeToTest[shapeRowsCounter][shapeColumnsCounter] !== null && !this.tetrisBlocks[tretisBlocksRowIndex][tretisBlocksColumnIndex].isTemporary){
-					isColliding++;
-				}
-
-			}else if(tretisBlocksRowIndex === 16){
-				isColliding++;
-			}
-
-		}
-
-	}
-
-	return isColliding > 0;
-
-}
-
-Tetris.prototype.updateShapePosition = function(arrayShape){
-
-	var intendedShapePosition = JSON.parse(JSON.stringify(this.shapePosition));
-	intendedShapePosition.bottomPosition++;
 	
 	//Calculating intended top position
 	intendedShapePosition.topPosition = intendedShapePosition.bottomPosition - (this.arrayShape.length - 1);
@@ -192,9 +229,6 @@ Tetris.prototype.updateShapePosition = function(arrayShape){
 		}
 
 	}
-
-	//Updates current shape bottom position attribute
-	this.shapePosition.bottomPosition++;
 
 }
 
@@ -218,10 +252,13 @@ Tetris.prototype.createArrayShape = function(){
 			[{color: "black"}],
 			[{color: "black"}],
 			[{color: "black"}]
+		],
+		[
+			[{color: "black"}]
 		]
 	]
 	
-	return arrayShapesArray[Math.floor(Math.random() * 4)];
+	return arrayShapesArray[Math.floor(Math.random() * 5)];
 		
 }
 
@@ -243,8 +280,42 @@ Tetris.prototype.rotateShape = function(){
 
 	}
 
-	if(!this.detectCollision(rotatedShape)){
+	if(!this.detectCollision(0, null, rotatedShape)){
+		this.clearTemporary();
 		this.arrayShape = rotatedShape;
+		this.updateShapePosition();
+		this.visual.update(this.tetrisBlocks);
 	}
+
+}
+
+Tetris.prototype.moveShapeTo = function(direction){
+
+	var movedShapePosition = JSON.parse(JSON.stringify(this.shapePosition));
+	var positionChanged = false;
+
+	if(direction === "left"){	
+		
+		if(this.shapePosition.leftPosition > 0){
+			movedShapePosition.leftPosition--;
+			positionChanged = true;
+		}
+
+	}else if(direction === "right"){
+		
+		if(this.shapePosition.leftPosition < (10 - this.arrayShape[0].length)){
+			movedShapePosition.leftPosition++;
+			positionChanged = true;
+		}
+		
+	}
+
+	if(positionChanged && !(this.detectCollision(0, movedShapePosition))){
+		this.shapePosition = movedShapePosition;
+		this.clearTemporary();
+		this.updateShapePosition();
+		this.visual.update(this.tetrisBlocks);
+	}
+	
 
 }
