@@ -7,14 +7,14 @@ var Tetris = function(params){
 	this.config = params;
 	this.visual = new TetrisVisual(params.container);
 	
-	//The main tetris array  
+	//The main Tetris array with all blocks  
 	this.tetrisBlocks = [];
 
-	//Current shape position object
-	this.shapePosition = {};
+	//Current piece position object (left, bottom)
+	this.piecePosition = {};
 
-	//Current shape object
-	this.arrayShape = [];
+	//Current piece object
+	this.pieceShape = [];
 
 	this.createBlocks();
 	this.visual.build();
@@ -25,18 +25,18 @@ var Tetris = function(params){
 
 };
 
-//Builds main tetris array
+//Builds main Tetris array (16 x 10)
 Tetris.prototype.createBlocks = function(){
 
 	var rows = [];
 
 	//Creatig 16 rows
-	for(var rows_counter = 0;rows_counter < 16; rows_counter++){
+	for(var rowsCounter = 0;rowsCounter < 16; rowsCounter++){
 
 		var row = [];
 
 		//Creating 10 columns
-		for(var columns_counter = 0;columns_counter < 10; columns_counter++){
+		for(var columnsCounter = 0;columnsCounter < 10; columnsCounter++){
 			row.push(null);
 		}
 
@@ -51,9 +51,9 @@ Tetris.prototype.createEventsListeners = function(){
 
 	var self = this;
 
-	window.addEventListener("keydown", function(e){
+	window.addEventListener("keydown", function(event){
 
-		switch (e.code) {
+		switch (event.code) {
 			case "Space":
 				self.rotateShape();
 			break;
@@ -64,7 +64,7 @@ Tetris.prototype.createEventsListeners = function(){
 				self.moveShapeTo("right");
 			break;
 			default:
-				console.log(e.code);
+				console.log(event.code);
 			break;
 		}
 	
@@ -75,10 +75,10 @@ Tetris.prototype.createEventsListeners = function(){
 Tetris.prototype.startPieceCircle = function(){
 
 	//Create a new random piece
-	this.arrayShape = this.createArrayShape();
+	this.pieceShape = this.createPieceArray();
 	
 	//Setting the initial position
-	this.shapePosition = {
+	this.piecePosition = {
 		leftPosition: 0, 
 		bottomPosition: -1,
 	}
@@ -93,14 +93,14 @@ Tetris.prototype.runCircle = function(){
 
 	setTimeout(function(){ 
 		
-		self.clearTemporary();
+		self.clearTemporaryBlocks();
 
-		//Checks whether collision will happen in the next block, if it's not so then update to the position of the next block
+		//Checks whether collision will happen in piece drop, if it's not so then the piece will drop and try to drop again
 		if(!(self.detectCollision(1))){
 
-			self.shapePosition.bottomPosition++;
+			self.piecePosition.bottomPosition++;
 	
-			self.updateShapePosition();
+			self.updatePiecePosition();
 			
 			console.log("Current tetrisBlocks state", self.tetrisBlocks);
 			
@@ -122,24 +122,24 @@ Tetris.prototype.runCircle = function(){
 
 }
 
-Tetris.prototype.detectCollision = function(bottomIncrement, shapePosition, arrayShape){
+Tetris.prototype.detectCollision = function(bottomPositionIncrement, piecePosition, pieceShape){
 
-	var shapePositionToTest = shapePosition ? shapePosition : this.shapePosition;
-	var shapeToTest = arrayShape ? arrayShape : this.arrayShape;
 	var isColliding = 0;
+	var piecePositionToTest = piecePosition ? piecePosition : this.piecePosition;
+	var pieceShapeToTest = pieceShape ? pieceShape : this.pieceShape;
 
-	var intendedShapePosition = JSON.parse(JSON.stringify(shapePositionToTest));
-	intendedShapePosition.bottomPosition += bottomIncrement;
+	var intendedPiecePosition = JSON.parse(JSON.stringify(piecePositionToTest));
+	intendedPiecePosition.bottomPosition += bottomPositionIncrement;
 
 	//Calculating intended top position
-	intendedShapePosition.topPosition = intendedShapePosition.bottomPosition - (shapeToTest.length - 1);
+	intendedPiecePosition.topPosition = intendedPiecePosition.bottomPosition - (pieceShapeToTest.length - 1);
 
-	for(var shapeRowsCounter = 0;shapeRowsCounter < shapeToTest.length; shapeRowsCounter++){
+	for(var pieceRowsCounter = 0;pieceRowsCounter < pieceShapeToTest.length; pieceRowsCounter++){
 
-		for(var shapeColumnsCounter = 0;shapeColumnsCounter < shapeToTest[shapeRowsCounter].length; shapeColumnsCounter++){
+		for(var pieceColumnsCounter = 0;pieceColumnsCounter < pieceShapeToTest[pieceRowsCounter].length; pieceColumnsCounter++){
 
-			var tretisBlocksRowIndex = intendedShapePosition.topPosition + shapeRowsCounter;
-			var tretisBlocksColumnIndex = intendedShapePosition.leftPosition + shapeColumnsCounter;
+			var tretisBlocksRowIndex = intendedPiecePosition.topPosition + pieceRowsCounter;
+			var tretisBlocksColumnIndex = intendedPiecePosition.leftPosition + pieceColumnsCounter;
 
 			
 			if(typeof this.tetrisBlocks[tretisBlocksRowIndex] !== "undefined"){
@@ -149,7 +149,7 @@ Tetris.prototype.detectCollision = function(bottomIncrement, shapePosition, arra
 					console.log(this.tetrisBlocks[tretisBlocksRowIndex][tretisBlocksColumnIndex]);
 					console.log(this.tetrisBlocks[tretisBlocksRowIndex][tretisBlocksColumnIndex] === null); 
 				*/
-				if(this.tetrisBlocks[tretisBlocksRowIndex][tretisBlocksColumnIndex] !== null && shapeToTest[shapeRowsCounter][shapeColumnsCounter] !== null && !this.tetrisBlocks[tretisBlocksRowIndex][tretisBlocksColumnIndex].isTemporary){
+				if(this.tetrisBlocks[tretisBlocksRowIndex][tretisBlocksColumnIndex] !== null && pieceShapeToTest[pieceRowsCounter][pieceColumnsCounter] !== null && (typeof this.tetrisBlocks[tretisBlocksRowIndex][tretisBlocksColumnIndex] === "undefined" || !this.tetrisBlocks[tretisBlocksRowIndex][tretisBlocksColumnIndex].isTemporary)){
 					isColliding++;
 				}
 
@@ -167,20 +167,20 @@ Tetris.prototype.detectCollision = function(bottomIncrement, shapePosition, arra
 
 Tetris.prototype.fastenShapePosition = function(){
 
-	var intendedShapePosition = JSON.parse(JSON.stringify(this.shapePosition));
+	var intendedPiecePosition = JSON.parse(JSON.stringify(this.piecePosition));
 
 	//Calculating intended top position
-	intendedShapePosition.topPosition = intendedShapePosition.bottomPosition - (this.arrayShape.length - 1);
+	intendedPiecePosition.topPosition = intendedPiecePosition.bottomPosition - (this.pieceShape.length - 1);
 
-	for(var shapeRowsCounter = 0;shapeRowsCounter < this.arrayShape.length; shapeRowsCounter++){
+	for(var pieceRowsCounter = 0;pieceRowsCounter < this.pieceShape.length; pieceRowsCounter++){
 
-		for(var shapeColumnsCounter = 0;shapeColumnsCounter < this.arrayShape[shapeRowsCounter].length; shapeColumnsCounter++){
+		for(var pieceColumnsCounter = 0;pieceColumnsCounter < this.pieceShape[pieceRowsCounter].length; pieceColumnsCounter++){
 
-			var tretisBlocksRowIndex = intendedShapePosition.topPosition + shapeRowsCounter;
-			var tretisBlocksColumnIndex = intendedShapePosition.leftPosition + shapeColumnsCounter;
+			var tretisBlocksRowIndex = intendedPiecePosition.topPosition + pieceRowsCounter;
+			var tretisBlocksColumnIndex = intendedPiecePosition.leftPosition + pieceColumnsCounter;
 
-			if(this.arrayShape[shapeRowsCounter][shapeColumnsCounter] !== null){
-				this.tetrisBlocks[tretisBlocksRowIndex][tretisBlocksColumnIndex] = this.arrayShape[shapeRowsCounter][shapeColumnsCounter];
+			if(this.pieceShape[pieceRowsCounter][pieceColumnsCounter] !== null){
+				this.tetrisBlocks[tretisBlocksRowIndex][tretisBlocksColumnIndex] = this.pieceShape[pieceRowsCounter][pieceColumnsCounter];
 				this.tetrisBlocks[tretisBlocksRowIndex][tretisBlocksColumnIndex].isTemporary = false
 			}
 
@@ -190,14 +190,14 @@ Tetris.prototype.fastenShapePosition = function(){
 
 }
 
-Tetris.prototype.clearTemporary = function(){
+Tetris.prototype.clearTemporaryBlocks = function(){
 	
-	for(var rows_counter = 0;rows_counter < this.tetrisBlocks.length; rows_counter++){
+	for(var rowsCounter = 0;rowsCounter < this.tetrisBlocks.length; rowsCounter++){
 
-		for(var columns_counter = 0;columns_counter < this.tetrisBlocks[rows_counter].length; columns_counter++){
+		for(var columnsCounter = 0;columnsCounter < this.tetrisBlocks[rowsCounter].length; columnsCounter++){
 
-			if(this.tetrisBlocks[rows_counter][columns_counter] !== null && this.tetrisBlocks[rows_counter][columns_counter].isTemporary){
-				this.tetrisBlocks[rows_counter][columns_counter] = null;
+			if(this.tetrisBlocks[rowsCounter][columnsCounter] !== null && this.tetrisBlocks[rowsCounter][columnsCounter].isTemporary){
+				this.tetrisBlocks[rowsCounter][columnsCounter] = null;
 			}
 
 		}
@@ -206,23 +206,23 @@ Tetris.prototype.clearTemporary = function(){
 
 }
 
-Tetris.prototype.updateShapePosition = function(){
+Tetris.prototype.updatePiecePosition = function(){
 
-	var intendedShapePosition = JSON.parse(JSON.stringify(this.shapePosition));
+	var intendedPiecePosition = JSON.parse(JSON.stringify(this.piecePosition));
 	
 	//Calculating intended top position
-	intendedShapePosition.topPosition = intendedShapePosition.bottomPosition - (this.arrayShape.length - 1);
+	intendedPiecePosition.topPosition = intendedPiecePosition.bottomPosition - (this.pieceShape.length - 1);
 
-	for(var shapeRowsCounter = 0;shapeRowsCounter < this.arrayShape.length; shapeRowsCounter++){
+	for(var shapeRowsCounter = 0;shapeRowsCounter < this.pieceShape.length; shapeRowsCounter++){
 
-		for(var shapeColumnsCounter = 0;shapeColumnsCounter < this.arrayShape[shapeRowsCounter].length; shapeColumnsCounter++){
+		for(var shapeColumnsCounter = 0;shapeColumnsCounter < this.pieceShape[shapeRowsCounter].length; shapeColumnsCounter++){
 
-			var tretisBlocksRowIndex = intendedShapePosition.topPosition + shapeRowsCounter;
-			var tretisBlocksColumnIndex = intendedShapePosition.leftPosition + shapeColumnsCounter;
+			var tretisBlocksRowIndex = intendedPiecePosition.topPosition + shapeRowsCounter;
+			var tretisBlocksColumnIndex = intendedPiecePosition.leftPosition + shapeColumnsCounter;
 			
 			//Updates current shape position in main array 
-			if(typeof this.tetrisBlocks[tretisBlocksRowIndex] !== "undefined" && this.arrayShape[shapeRowsCounter][shapeColumnsCounter] !== null){
-				this.tetrisBlocks[tretisBlocksRowIndex][tretisBlocksColumnIndex] = this.arrayShape[shapeRowsCounter][shapeColumnsCounter];
+			if(typeof this.tetrisBlocks[tretisBlocksRowIndex] !== "undefined" && this.pieceShape[shapeRowsCounter][shapeColumnsCounter] !== null){
+				this.tetrisBlocks[tretisBlocksRowIndex][tretisBlocksColumnIndex] = this.pieceShape[shapeRowsCounter][shapeColumnsCounter];
 				this.tetrisBlocks[tretisBlocksRowIndex][tretisBlocksColumnIndex].isTemporary = true;
 			}
 
@@ -232,7 +232,7 @@ Tetris.prototype.updateShapePosition = function(){
 
 }
 
-Tetris.prototype.createArrayShape = function(){
+Tetris.prototype.createPieceArray = function(){
 
 	var arrayShapesArray = [
 		[
@@ -266,13 +266,13 @@ Tetris.prototype.rotateShape = function(){
 	
 	var rotatedShape = [];
 
-	for(columnCounter = 0;columnCounter < this.arrayShape[0].length; columnCounter++){
+	for(columnCounter = 0;columnCounter < this.pieceShape[0].length; columnCounter++){
 
 		var row = [];
 
-		for(rowCounter = (this.arrayShape.length -1);rowCounter > -1; rowCounter--){
+		for(rowCounter = (this.pieceShape.length -1);rowCounter > -1; rowCounter--){
 
-			row.push(this.arrayShape[rowCounter][columnCounter]);
+			row.push(this.pieceShape[rowCounter][columnCounter]);
 	
 		}
 
@@ -281,9 +281,9 @@ Tetris.prototype.rotateShape = function(){
 	}
 
 	if(!this.detectCollision(0, null, rotatedShape)){
-		this.clearTemporary();
-		this.arrayShape = rotatedShape;
-		this.updateShapePosition();
+		this.clearTemporaryBlocks();
+		this.pieceShape = rotatedShape;
+		this.updatePiecePosition();
 		this.visual.update(this.tetrisBlocks);
 	}
 
@@ -291,19 +291,19 @@ Tetris.prototype.rotateShape = function(){
 
 Tetris.prototype.moveShapeTo = function(direction){
 
-	var movedShapePosition = JSON.parse(JSON.stringify(this.shapePosition));
+	var movedShapePosition = JSON.parse(JSON.stringify(this.piecePosition));
 	var positionChanged = false;
 
 	if(direction === "left"){	
 		
-		if(this.shapePosition.leftPosition > 0){
+		if(this.piecePosition.leftPosition > 0){
 			movedShapePosition.leftPosition--;
 			positionChanged = true;
 		}
 
 	}else if(direction === "right"){
 		
-		if(this.shapePosition.leftPosition < (10 - this.arrayShape[0].length)){
+		if(this.piecePosition.leftPosition < (10 - this.pieceShape[0].length)){
 			movedShapePosition.leftPosition++;
 			positionChanged = true;
 		}
@@ -311,9 +311,9 @@ Tetris.prototype.moveShapeTo = function(direction){
 	}
 
 	if(positionChanged && !(this.detectCollision(0, movedShapePosition))){
-		this.shapePosition = movedShapePosition;
-		this.clearTemporary();
-		this.updateShapePosition();
+		this.piecePosition = movedShapePosition;
+		this.clearTemporaryBlocks();
+		this.updatePiecePosition();
 		this.visual.update(this.tetrisBlocks);
 	}
 	
