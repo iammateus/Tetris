@@ -104,7 +104,7 @@ Tetris.prototype.runCircle = function(){
 			
 			console.log("Current tetrisBlocks state", self.tetrisBlocks);
 			
-			//If shape position was updated successfully, tries update again by calling itself
+			//If piece position was updated successfully, tries update again by calling itself
 			self.runCircle();
 
 		}else{
@@ -280,11 +280,33 @@ Tetris.prototype.rotatePiece = function(){
 
 	}
 
-	if(!this.detectCollision(0, null, rotatedPiece)){
-		this.clearTemporaryBlocks();
-		this.pieceShape = rotatedPiece;
-		this.updatePiecePosition();
-		this.visual.update(this.tetrisBlocks);
+	var piecePositionCopy = JSON.parse(JSON.stringify(this.piecePosition));
+	
+	var pieceSizes = {
+		rows: rotatedPiece.length,
+		columns: rotatedPiece[0].length
+	}
+
+	var success = false;
+
+	for(var countColumns = 0; countColumns < (pieceSizes.columns + 1); countColumns++){
+
+		
+		if(!this.detectCollision(0, piecePositionCopy, rotatedPiece) && !success){
+
+			console.log("here");
+			
+			this.clearTemporaryBlocks();
+			this.pieceShape = rotatedPiece;
+			this.piecePosition = JSON.parse(JSON.stringify(piecePositionCopy));
+			this.updatePiecePosition();
+			this.visual.update(this.tetrisBlocks);
+			success = true;
+			
+		}else{
+			piecePositionCopy.leftPosition--;
+		}
+
 	}
 
 }
