@@ -63,6 +63,22 @@ Tetris.prototype.createEventsListeners = function(){
 			case "ArrowRight":
 				self.movePieceTo("right");
 			break;
+			case "ArrowDown":
+				self.changeSpeed(50);
+			break;
+			default:
+				console.log(event.code);
+			break;
+		}
+	
+	});
+	
+	window.addEventListener("keyup", function(event){
+
+		switch (event.code) {
+			case "ArrowDown":
+				self.changeSpeed(500);
+			break;
 			default:
 				console.log(event.code);
 			break;
@@ -312,17 +328,17 @@ Tetris.prototype.rotatePiece = function(){
 }
 
 Tetris.prototype.movePieceTo = function(direction){
-
+	
 	var movedPiecePosition = JSON.parse(JSON.stringify(this.piecePosition));
 	var positionChanged = false;
-
+	
 	if(direction === "left"){	
 		
 		if(this.piecePosition.leftPosition > 0){
 			movedPiecePosition.leftPosition--;
 			positionChanged = true;
 		}
-
+		
 	}else if(direction === "right"){
 		
 		if(this.piecePosition.leftPosition < (10 - this.pieceShape[0].length)){
@@ -331,12 +347,18 @@ Tetris.prototype.movePieceTo = function(direction){
 		}
 		
 	}
-
+	
 	if(positionChanged && !(this.detectCollision(0, movedPiecePosition))){
 		this.piecePosition = movedPiecePosition;
 		this.clearTemporaryBlocks();
 		this.updatePiecePosition();
 		this.visual.update(this.tetrisBlocks);
 	}
+	
+}
+
+Tetris.prototype.changeSpeed = function(speed){
+
+	this.config.speed = speed;
 	
 }
