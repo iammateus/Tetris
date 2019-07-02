@@ -250,27 +250,29 @@ Tetris.prototype.updatePiecePosition = function(){
 
 Tetris.prototype.createPieceArray = function(){
 
+	var pieceColor = this.visual.createRandomColor();
+
 	var arrayShapesArray = [
 		[
-			[{color: "black"}, {color: "black"}, {color: "black"}],
-			[null, {color: "black"}, null]
+			[{color: pieceColor}, {color: pieceColor}, {color: pieceColor}],
+			[null, {color: pieceColor}, null]
 		],
 		[
-			[{color: "black"}, {color: "black"}, {color: "black"}],
-			[null, null, {color: "black"}]
+			[{color: pieceColor}, {color: pieceColor}, {color: pieceColor}],
+			[null, null, {color: pieceColor}]
 		],
 		[
-			[{color: "black"}, {color: "black"}],
-			[{color: "black"}, {color: "black"}]
+			[{color: pieceColor}, {color: pieceColor}],
+			[{color: pieceColor}, {color: pieceColor}]
 		],
 		[
-			[{color: "black"}],
-			[{color: "black"}],
-			[{color: "black"}],
-			[{color: "black"}]
+			[{color: pieceColor}],
+			[{color: pieceColor}],
+			[{color: pieceColor}],
+			[{color: pieceColor}]
 		],
 		[
-			[{color: "black"}]
+			[{color: pieceColor}]
 		]
 	]
 	

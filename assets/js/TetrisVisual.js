@@ -31,22 +31,26 @@ TetrisVisual.prototype.build = function(){
 }
 
 TetrisVisual.prototype.update = function(tetrisBlocks){
-
+	
 	var tetrisBlocksCopy = JSON.parse(JSON.stringify(tetrisBlocks));
-
+	
 	for(var rows_counter = 0;rows_counter < tetrisBlocksCopy.length; rows_counter++){
 
 		for(var columns_counter = 0;columns_counter < tetrisBlocksCopy[rows_counter].length; columns_counter++){
-
+			
 			if(tetrisBlocksCopy[rows_counter][columns_counter] !== null){
 				var block = tetrisBlocksCopy[rows_counter][columns_counter];
 				this.createdVisualBlocks[rows_counter][columns_counter].style.backgroundColor = block.color;
 			}else{
 				this.createdVisualBlocks[rows_counter][columns_counter].style.backgroundColor = "";
 			}
-
+			
 		}
-
+		
 	}
+	
+}
 
+TetrisVisual.prototype.createRandomColor = function(){
+	return '#' + Math.random().toString(16).slice(2, 8).toUpperCase();
 }
