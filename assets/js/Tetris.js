@@ -4,7 +4,13 @@
 
 var Tetris = function(params){
 
+	this.gameData ={
+		points: 0,
+		stage: 1
+	}
+
 	this.config = params;
+	this.config.speed = this.config.normalSpeed;
 	this.visual = new TetrisVisual(params.container);
 	
 	//The main Tetris array with all blocks  
@@ -64,7 +70,7 @@ Tetris.prototype.createEventsListeners = function(){
 				self.movePieceTo("right");
 			break;
 			case "ArrowDown":
-				self.changeSpeed(50);
+				self.changeSpeed(self.config.normalSpeed/8);
 			break;
 			default:
 				console.log(event.code);
@@ -77,7 +83,7 @@ Tetris.prototype.createEventsListeners = function(){
 
 		switch (event.code) {
 			case "ArrowDown":
-				self.changeSpeed(500);
+				self.changeSpeed(self.config.normalSpeed);
 			break;
 			default:
 				console.log(event.code);
@@ -99,6 +105,7 @@ Tetris.prototype.startPieceCircle = function(){
 		bottomPosition: -1,
 	}
 
+	this.visual.updatePointsDisplay(this.gameData.points);
 	this.runCircle();
 
 }
@@ -107,8 +114,8 @@ Tetris.prototype.runCircle = function(){
 
 	var self = this;
 
-	setTimeout(function(){ 
-		
+	setTimeout(function(){
+	
 		self.clearTemporaryBlocks();
 
 		//Checks whether collision will happen in piece drop, if it's not so then the piece will drop and try to drop again
@@ -125,8 +132,12 @@ Tetris.prototype.runCircle = function(){
 
 		}else{
 
-			//If collision was detected stores current shape position and starts a new shape circle
+			//If collision was detected stores current shape position and finis
 			self.fastenPiecePosition();
+
+			self.checkForGamePoints();
+			
+			//Also starts a new shape circle
 			self.startPieceCircle();
 			
 		}
@@ -312,8 +323,6 @@ Tetris.prototype.rotatePiece = function(){
 		
 		if(!this.detectCollision(0, piecePositionCopy, rotatedPiece) && !success){
 
-			console.log("here");
-			
 			this.clearTemporaryBlocks();
 			this.pieceShape = rotatedPiece;
 			this.piecePosition = JSON.parse(JSON.stringify(piecePositionCopy));
@@ -357,6 +366,29 @@ Tetris.prototype.movePieceTo = function(direction){
 		this.visual.update(this.tetrisBlocks);
 	}
 	
+}
+
+Tetris.prototype.checkForGamePoints = function(){
+
+	//console.clear();
+
+	for(var rowCounter = 15; rowCounter > 0; rowCounter--){
+
+		//if row is complete:
+		if(this.tetrisBlocks[rowCounter].indexOf(null) === -1){
+
+			this.gameData.points += this.gameData.stage * 100;
+			
+			for(var rowCounterTwo = rowCounter;  rowCounterTwo > 0; rowCounterTwo--){
+				this.tetrisBlocks[rowCounterTwo] = JSON.parse(JSON.stringify(this.tetrisBlocks[rowCounterTwo-1]));
+			}
+
+			rowCounter++;
+
+		}
+
+	}
+
 }
 
 Tetris.prototype.changeSpeed = function(speed){

@@ -1,33 +1,49 @@
 
 var TetrisVisual = function(container){
-
 	this.container = document.getElementById(container);
 	this.createdVisualBlocks = [];
+	this.pointsDisplay = null;
 };
 
 TetrisVisual.prototype.build = function(){
+	this.buildTetrisElement();
+	this.buildPointsDisplay();
+}
 
-	var rows = [];
-
-	for(var rows_counter = 0;rows_counter < 16; rows_counter++){
-
-		var row = [];
-
-		for(var columns_counter = 0;columns_counter < 10; columns_counter++){
+TetrisVisual.prototype.buildTetrisElement = function(){
 	
+	var rows = [];
+	
+	for(var rows_counter = 0;rows_counter < 16; rows_counter++){
+		
+		var row = [];
+		
+		for(var columns_counter = 0;columns_counter < 10; columns_counter++){
+			
 			var newBlock = document.createElement("div");
 			newBlock.classList.add("block");
 			row.push(newBlock);
 			this.container.appendChild(newBlock);
-	
+			
 		}
-
+		
 		rows.push(row);
-
+		
 	}
 	
 	this.createdVisualBlocks = rows;
+	
+}
 
+TetrisVisual.prototype.buildPointsDisplay = function(){
+	var pointsDisplay = document.createElement("label");
+	pointsDisplay.innerHTML = "Points: 0";
+	document.body.appendChild(pointsDisplay);
+	this.pointsDisplay = pointsDisplay;
+}
+
+TetrisVisual.prototype.updatePointsDisplay = function(points){
+	this.pointsDisplay.innerHTML = "Points: " + points;
 }
 
 TetrisVisual.prototype.update = function(tetrisBlocks){
