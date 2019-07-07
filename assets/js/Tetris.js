@@ -96,6 +96,8 @@ Tetris.prototype.createEventsListeners = function(){
 
 Tetris.prototype.startPieceCircle = function(){
 
+	this.changeSpeed(this.config.normalSpeed);
+	
 	//Create a new random piece
 	this.pieceShape = this.createPieceArray();
 	
