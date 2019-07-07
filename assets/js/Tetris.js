@@ -294,9 +294,10 @@ Tetris.prototype.createPieceArray = function(){
 }
 
 Tetris.prototype.rotatePiece = function(){
-	
+
 	var rotatedPiece = [];
 
+	//Rotating piece to the right
 	for(columnCounter = 0;columnCounter < this.pieceShape[0].length; columnCounter++){
 
 		var row = [];
@@ -311,6 +312,12 @@ Tetris.prototype.rotatePiece = function(){
 
 	}
 
+	//If the left position was changed by rotating the piece returns it to the left position before rotation
+	if(this.leftPositionBeforeRotation !== null && typeof this.leftPositionBeforeRotation !== "undefined"){
+		this.piecePosition.leftPosition = this.leftPositionBeforeRotation;
+		this.leftPositionBeforeRotation = null;
+	}
+
 	var piecePositionCopy = JSON.parse(JSON.stringify(this.piecePosition));
 	
 	var pieceSizes = {
@@ -321,14 +328,20 @@ Tetris.prototype.rotatePiece = function(){
 	var success = false;
 
 	for(var countColumns = 0; countColumns < (pieceSizes.columns + 1); countColumns++){
-
 		
 		if(!this.detectCollision(0, piecePositionCopy, rotatedPiece) && !success){
 
 			this.clearTemporaryBlocks();
 			this.pieceShape = rotatedPiece;
+
+			//Storing previous left position to be used if piece rotates back to its previous columns length
+			if(countColumns > 0){
+				this.leftPositionBeforeRotation = this.piecePosition.leftPosition;
+			}
+
 			this.piecePosition = JSON.parse(JSON.stringify(piecePositionCopy));
 			this.updatePiecePosition();
+
 			this.visual.update(this.tetrisBlocks);
 			success = true;
 			
