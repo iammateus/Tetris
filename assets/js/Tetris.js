@@ -96,7 +96,11 @@ Tetris.prototype.createEventsListeners = function(){
 
 Tetris.prototype.startPieceCircle = function(){
 
+	//Return game speed to normal (for a better gameplay)
 	this.changeSpeed(this.config.normalSpeed);
+
+	//Cleaning previous piece left position to prevent some bugs
+	this.leftPositionBeforeRotation = null ;
 	
 	//Create a new random piece
 	this.pieceShape = this.createPieceArray();
@@ -375,6 +379,8 @@ Tetris.prototype.movePieceTo = function(direction){
 	}
 	
 	if(positionChanged && !(this.detectCollision(0, movedPiecePosition))){
+		//Cleaning previous piece left position to prevent some bugs
+		this.leftPositionBeforeRotation = null ;
 		this.piecePosition = movedPiecePosition;
 		this.clearTemporaryBlocks();
 		this.updatePiecePosition();
