@@ -73,7 +73,7 @@ Tetris.prototype.createEventsListeners = function(){
 				self.changeSpeed(self.config.normalSpeed/8);
 			break;
 			default:
-				console.log(event.code);
+				//console.log(event.code);
 			break;
 		}
 	
@@ -86,7 +86,7 @@ Tetris.prototype.createEventsListeners = function(){
 				self.changeSpeed(self.config.normalSpeed);
 			break;
 			default:
-				console.log(event.code);
+				//console.log(event.code);
 			break;
 		}
 	
@@ -279,8 +279,8 @@ Tetris.prototype.createPieceArray = function(){
 			[null, null, {color: pieceColor}]
 		],
 		[
-			[{color: pieceColor}, {color: pieceColor}],
-			[{color: pieceColor}, {color: pieceColor}]
+			[{color: pieceColor}, {color: pieceColor}, {color: pieceColor}],
+			[null, null, {color: pieceColor}]
 		],
 		[
 			[{color: pieceColor}],
@@ -289,7 +289,7 @@ Tetris.prototype.createPieceArray = function(){
 			[{color: pieceColor}]
 		],
 		[
-			[{color: pieceColor}]
+			[{color: pieceColor},{color: pieceColor},{color: pieceColor},{color: pieceColor}]
 		]
 	]
 	
@@ -316,17 +316,39 @@ Tetris.prototype.rotatePiece = function(){
 
 	}
 
-	//If the left position was changed by rotating the piece returns it to the left position before rotation
-	if(this.leftPositionBeforeRotation !== null && typeof this.leftPositionBeforeRotation !== "undefined"){
-		this.piecePosition.leftPosition = this.leftPositionBeforeRotation;
-		this.leftPositionBeforeRotation = null;
-	}
-
 	var piecePositionCopy = JSON.parse(JSON.stringify(this.piecePosition));
 	
 	var pieceSizes = {
 		rows: rotatedPiece.length,
 		columns: rotatedPiece[0].length
+	}
+
+	//If the left position was changed by rotating the piece returns it to the left position before rotation
+	if(this.leftPositionBeforeRotation !== null && typeof this.leftPositionBeforeRotation !== "undefined"){
+
+		var aux = piecePositionCopy.leftPosition;
+
+		piecePositionCopy.leftPosition = this.leftPositionBeforeRotation;
+
+		if(this.detectCollision(0, piecePositionCopy, rotatedPiece)){
+			piecePositionCopy.leftPosition = aux;
+		}
+
+		this.leftPositionBeforeRotation = null;
+
+	}
+
+	//Centers the piece when rotating
+	if(rotatedPiece[0].length < this.pieceShape[0].length){
+
+		piecePositionCopy.leftPosition++;
+
+		if(!this.detectCollision(0, piecePositionCopy, rotatedPiece)){
+			this.leftPositionBeforeRotation = piecePositionCopy.leftPosition - 1;
+		}else{
+			piecePositionCopy.leftPosition--;
+		}
+
 	}
 
 	var success = false;
@@ -337,11 +359,6 @@ Tetris.prototype.rotatePiece = function(){
 
 			this.clearTemporaryBlocks();
 			this.pieceShape = rotatedPiece;
-
-			//Storing previous left position to be used if piece rotates back to its previous columns length
-			if(countColumns > 0){
-				this.leftPositionBeforeRotation = this.piecePosition.leftPosition;
-			}
 
 			this.piecePosition = JSON.parse(JSON.stringify(piecePositionCopy));
 			this.updatePiecePosition();
@@ -390,8 +407,6 @@ Tetris.prototype.movePieceTo = function(direction){
 }
 
 Tetris.prototype.checkForGamePoints = function(){
-
-	//console.clear();
 
 	for(var rowCounter = 15; rowCounter > 0; rowCounter--){
 
