@@ -271,29 +271,40 @@ Tetris.prototype.createPieceArray = function(){
 
 	var arrayShapesArray = [
 		[
-			[{color: pieceColor}, {color: pieceColor}, {color: pieceColor}],
-			[null, {color: pieceColor}, null]
-		],
-		[
-			[{color: pieceColor}, {color: pieceColor}, {color: pieceColor}],
-			[null, null, {color: pieceColor}]
-		],
-		[
-			[{color: pieceColor}, {color: pieceColor}, {color: pieceColor}],
-			[null, null, {color: pieceColor}]
+			[{color: pieceColor}, {color: pieceColor}],
+			[{color: pieceColor}, {color: pieceColor}]
 		],
 		[
 			[{color: pieceColor}],
 			[{color: pieceColor}],
 			[{color: pieceColor}],
-			[{color: pieceColor}]
+			[{color: pieceColor}],
 		],
 		[
-			[{color: pieceColor},{color: pieceColor},{color: pieceColor},{color: pieceColor}]
-		]
+			[null, {color: pieceColor}, {color: pieceColor}],
+			[{color: pieceColor}, {color: pieceColor}, null]
+		],
+		[
+			[{color: pieceColor},{color: pieceColor}, null],
+			[null,{color: pieceColor},{color: pieceColor}]
+		],
+		[
+			[{color: pieceColor},null],
+			[{color: pieceColor},null],
+			[{color: pieceColor},{color: pieceColor}],
+		],
+		[
+			[null,{color: pieceColor}],
+			[null,{color: pieceColor}],
+			[{color: pieceColor},{color: pieceColor}],
+		],
+		[
+			[{color: pieceColor},{color: pieceColor},{color: pieceColor}],
+			[null,{color: pieceColor},null]
+		],
 	]
 	
-	return arrayShapesArray[Math.floor(Math.random() * 5)];
+	return arrayShapesArray[Math.floor(Math.random() * 7)];
 		
 }
 
