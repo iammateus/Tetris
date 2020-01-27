@@ -123,7 +123,7 @@ Tetris.prototype.runCircle = function(){
 	var self = this;
 
 	setTimeout(function(){
-	
+
 		self.clearTemporaryBlocks();
 
 		//Checks whether collision will happen in piece drop, if it's not so then the piece will drop and try to drop again
@@ -140,7 +140,18 @@ Tetris.prototype.runCircle = function(){
 
 		}else{
 
-			//If collision was detected stores current shape position and finis
+            //If collision was detected stores current shape position and finish cicle
+            if(self.detectIfGameIsOver()){
+                alert("The game is over ;(");
+                //@TODO: Create a better "wanna play again?" screen
+                if(confirm("Wanna play again?")){
+                    location = location;
+                }else{
+                    alert("Thanks for your time!");
+                }
+                return;
+            }
+
 			self.fastenPiecePosition();
 
 			self.checkForGamePoints();
@@ -212,8 +223,8 @@ Tetris.prototype.fastenPiecePosition = function(){
 		for(var pieceColumnsCounter = 0;pieceColumnsCounter < this.pieceShape[pieceRowsCounter].length; pieceColumnsCounter++){
 
 			var tretisBlocksRowIndex = intendedPiecePosition.topPosition + pieceRowsCounter;
-			var tretisBlocksColumnIndex = intendedPiecePosition.leftPosition + pieceColumnsCounter;
-
+            var tretisBlocksColumnIndex = intendedPiecePosition.leftPosition + pieceColumnsCounter;
+            
 			if(this.pieceShape[pieceRowsCounter][pieceColumnsCounter] !== null){
 				this.tetrisBlocks[tretisBlocksRowIndex][tretisBlocksColumnIndex] = this.pieceShape[pieceRowsCounter][pieceColumnsCounter];
 				this.tetrisBlocks[tretisBlocksRowIndex][tretisBlocksColumnIndex].isTemporary = false
@@ -445,3 +456,14 @@ Tetris.prototype.changeSpeed = function(speed){
 	this.config.speed = speed;
 	
 }
+
+Tetris.prototype.detectIfGameIsOver = function(){
+
+    var currentPiecePosition = JSON.parse(JSON.stringify(this.piecePosition));
+
+    //Calculating intended top position
+    currentPiecePosition.topPosition = currentPiecePosition.bottomPosition - (this.pieceShape.length - 1);
+    
+    return currentPiecePosition.topPosition < 0;
+    
+};
