@@ -90,7 +90,23 @@ Tetris.prototype.createEventsListeners = function(){
 			break;
 		}
 	
-	});
+    });
+
+    //@TODO: improve controllers in mobile
+    window.addEventListener("click", function(event){
+
+        var halfInnerWidth = window.innerWidth / 2;
+        var pointerPosition = event.clientX;
+
+        if(pointerPosition > halfInnerWidth){
+            self.movePieceTo("right");
+        }
+
+        if(pointerPosition < halfInnerWidth){
+            self.movePieceTo("left");
+        }
+	
+    });
 
 }	
 
@@ -133,7 +149,7 @@ Tetris.prototype.runCircle = function(){
 	
 			self.updatePiecePosition();
 			
-			console.log("Current tetrisBlocks state", self.tetrisBlocks);
+			//console.log("Current tetrisBlocks state", self.tetrisBlocks);
 			
 			//If piece position was updated successfully, tries update again by calling itself
 			self.runCircle();
