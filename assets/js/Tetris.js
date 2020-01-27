@@ -103,11 +103,13 @@ Tetris.prototype.startPieceCircle = function(){
 	this.leftPositionBeforeRotation = null ;
 	
 	//Create a new random piece
-	this.pieceShape = this.createPieceArray();
-	
+    this.pieceShape = this.createPieceArray();
+    
+    var pieceLength = this.pieceShape[0].length;
+    
 	//Setting the initial position
 	this.piecePosition = {
-		leftPosition: 0, 
+		leftPosition: Math.floor((10 - pieceLength)  / 2), 
 		bottomPosition: -1,
 	}
 
