@@ -5,8 +5,12 @@
 var Tetris = function(params){
 
 	this.gameData ={
-		points: 0,
-		stage: 1
+        //Game points
+        points: 0,
+        //Stage of the game
+        stage: 1,
+        //Couter
+        finishedPiecesCycleCounter: 0
 	}
 
 	this.config = params;
@@ -20,7 +24,9 @@ var Tetris = function(params){
 	this.piecePosition = {};
 
 	//Current piece object
-	this.pieceShape = [];
+    this.piecesList = [];
+    this.createPiecesList(3);
+    this.currentPieceShape = [];
 
 	this.createBlocks();
 	this.visual.build();
@@ -112,16 +118,20 @@ Tetris.prototype.createEventsListeners = function(){
 
 Tetris.prototype.startPieceCircle = function(){
 
-	//Return game speed to normal (for a better gameplay)
+	//Reset game speed to normal (for a better gameplay)
 	this.changeSpeed(this.config.normalSpeed);
 
 	//Cleaning previous piece left position to prevent some bugs
-	this.leftPositionBeforeRotation = null ;
-	
-	//Create a new random piece
-    this.pieceShape = this.createPieceArray();
+    this.leftPositionBeforeRotation = null;
     
-    var pieceLength = this.pieceShape[0].length;
+    //If the game is not in the first piece cycle than it won't refresh game pieces list
+    if(this.gameData.finishedPiecesCycleCounter !== 0){
+        this.refreshPiecesList();
+    }
+
+    this.refreshCurrentPieceShape();
+	
+    var pieceLength = this.currentPieceShape[0].length;
     
 	//Setting the initial position
 	this.piecePosition = {
@@ -168,7 +178,9 @@ Tetris.prototype.runCircle = function(){
                 return;
             }
 
-			self.fastenPiecePosition();
+            self.fastenPiecePosition();
+
+            self.gameData.finishedPiecesCycleCounter++;
 
 			self.checkForGamePoints();
 			
@@ -188,7 +200,7 @@ Tetris.prototype.detectCollision = function(bottomPositionIncrement, piecePositi
 
 	var isColliding = 0;
 	var piecePositionToTest = piecePosition ? piecePosition : this.piecePosition;
-	var pieceShapeToTest = pieceShape ? pieceShape : this.pieceShape;
+	var pieceShapeToTest = pieceShape ? pieceShape : this.currentPieceShape;
 
 	var intendedPiecePosition = JSON.parse(JSON.stringify(piecePositionToTest));
 	intendedPiecePosition.bottomPosition += bottomPositionIncrement;
@@ -232,17 +244,17 @@ Tetris.prototype.fastenPiecePosition = function(){
 	var intendedPiecePosition = JSON.parse(JSON.stringify(this.piecePosition));
 
 	//Calculating intended top position
-	intendedPiecePosition.topPosition = intendedPiecePosition.bottomPosition - (this.pieceShape.length - 1);
+	intendedPiecePosition.topPosition = intendedPiecePosition.bottomPosition - (this.currentPieceShape.length - 1);
 
-	for(var pieceRowsCounter = 0;pieceRowsCounter < this.pieceShape.length; pieceRowsCounter++){
+	for(var pieceRowsCounter = 0;pieceRowsCounter < this.currentPieceShape.length; pieceRowsCounter++){
 
-		for(var pieceColumnsCounter = 0;pieceColumnsCounter < this.pieceShape[pieceRowsCounter].length; pieceColumnsCounter++){
+		for(var pieceColumnsCounter = 0;pieceColumnsCounter < this.currentPieceShape[pieceRowsCounter].length; pieceColumnsCounter++){
 
 			var tretisBlocksRowIndex = intendedPiecePosition.topPosition + pieceRowsCounter;
             var tretisBlocksColumnIndex = intendedPiecePosition.leftPosition + pieceColumnsCounter;
             
-			if(this.pieceShape[pieceRowsCounter][pieceColumnsCounter] !== null){
-				this.tetrisBlocks[tretisBlocksRowIndex][tretisBlocksColumnIndex] = this.pieceShape[pieceRowsCounter][pieceColumnsCounter];
+			if(this.currentPieceShape[pieceRowsCounter][pieceColumnsCounter] !== null){
+				this.tetrisBlocks[tretisBlocksRowIndex][tretisBlocksColumnIndex] = this.currentPieceShape[pieceRowsCounter][pieceColumnsCounter];
 				this.tetrisBlocks[tretisBlocksRowIndex][tretisBlocksColumnIndex].isTemporary = false
 			}
 
@@ -273,18 +285,18 @@ Tetris.prototype.updatePiecePosition = function(){
 	var intendedPiecePosition = JSON.parse(JSON.stringify(this.piecePosition));
 	
 	//Calculating intended top position
-	intendedPiecePosition.topPosition = intendedPiecePosition.bottomPosition - (this.pieceShape.length - 1);
+	intendedPiecePosition.topPosition = intendedPiecePosition.bottomPosition - (this.currentPieceShape.length - 1);
 
-	for(var shapeRowsCounter = 0;shapeRowsCounter < this.pieceShape.length; shapeRowsCounter++){
+	for(var shapeRowsCounter = 0;shapeRowsCounter < this.currentPieceShape.length; shapeRowsCounter++){
 
-		for(var shapeColumnsCounter = 0;shapeColumnsCounter < this.pieceShape[shapeRowsCounter].length; shapeColumnsCounter++){
+		for(var shapeColumnsCounter = 0;shapeColumnsCounter < this.currentPieceShape[shapeRowsCounter].length; shapeColumnsCounter++){
 
 			var tretisBlocksRowIndex = intendedPiecePosition.topPosition + shapeRowsCounter;
 			var tretisBlocksColumnIndex = intendedPiecePosition.leftPosition + shapeColumnsCounter;
 			
 			//Updates current shape position in main array 
-			if(typeof this.tetrisBlocks[tretisBlocksRowIndex] !== "undefined" && this.pieceShape[shapeRowsCounter][shapeColumnsCounter] !== null){
-				this.tetrisBlocks[tretisBlocksRowIndex][tretisBlocksColumnIndex] = this.pieceShape[shapeRowsCounter][shapeColumnsCounter];
+			if(typeof this.tetrisBlocks[tretisBlocksRowIndex] !== "undefined" && this.currentPieceShape[shapeRowsCounter][shapeColumnsCounter] !== null){
+				this.tetrisBlocks[tretisBlocksRowIndex][tretisBlocksColumnIndex] = this.currentPieceShape[shapeRowsCounter][shapeColumnsCounter];
 				this.tetrisBlocks[tretisBlocksRowIndex][tretisBlocksColumnIndex].isTemporary = true;
 			}
 
@@ -342,13 +354,13 @@ Tetris.prototype.rotatePiece = function(){
 	var rotatedPiece = [];
 
 	//Rotating piece to the right
-	for(columnCounter = 0;columnCounter < this.pieceShape[0].length; columnCounter++){
+	for(columnCounter = 0;columnCounter < this.currentPieceShape[0].length; columnCounter++){
 
 		var row = [];
 
-		for(rowCounter = (this.pieceShape.length -1);rowCounter > -1; rowCounter--){
+		for(rowCounter = (this.currentPieceShape.length -1);rowCounter > -1; rowCounter--){
 
-			row.push(this.pieceShape[rowCounter][columnCounter]);
+			row.push(this.currentPieceShape[rowCounter][columnCounter]);
 	
 		}
 
@@ -379,7 +391,7 @@ Tetris.prototype.rotatePiece = function(){
 	}
 
 	//Centers the piece when rotating
-	if(rotatedPiece[0].length < this.pieceShape[0].length){
+	if(rotatedPiece[0].length < this.currentPieceShape[0].length){
 
 		piecePositionCopy.leftPosition++;
 
@@ -398,7 +410,7 @@ Tetris.prototype.rotatePiece = function(){
 		if(!this.detectCollision(0, piecePositionCopy, rotatedPiece) && !success){
 
 			this.clearTemporaryBlocks();
-			this.pieceShape = rotatedPiece;
+			this.currentPieceShape = rotatedPiece;
 
 			this.piecePosition = JSON.parse(JSON.stringify(piecePositionCopy));
 			this.updatePiecePosition();
@@ -428,7 +440,7 @@ Tetris.prototype.movePieceTo = function(direction){
 		
 	}else if(direction === "right"){
 		
-		if(this.piecePosition.leftPosition < (10 - this.pieceShape[0].length)){
+		if(this.piecePosition.leftPosition < (10 - this.currentPieceShape[0].length)){
 			movedPiecePosition.leftPosition++;
 			positionChanged = true;
 		}
@@ -478,8 +490,48 @@ Tetris.prototype.detectIfGameIsOver = function(){
     var currentPiecePosition = JSON.parse(JSON.stringify(this.piecePosition));
 
     //Calculating intended top position
-    currentPiecePosition.topPosition = currentPiecePosition.bottomPosition - (this.pieceShape.length - 1);
+    currentPiecePosition.topPosition = currentPiecePosition.bottomPosition - (this.currentPieceShape.length - 1);
     
     return currentPiecePosition.topPosition < 0;
     
 };
+
+Tetris.prototype.createPiecesList = function(listSize){
+
+    //This array will contain 3 pieces
+    var piecesList = [];
+
+    for (var index = 0; index < listSize; index++) {
+        piecesList[index] = this.createPieceArray();
+    }
+
+    this.piecesList = piecesList;
+
+}
+
+/**
+ * Remove first piece of pieces list and create a new piece to be the last in the list
+ */
+Tetris.prototype.refreshPiecesList = function(){
+
+    var pieceList = JSON.parse(JSON.stringify(this.piecesList));
+
+    var pieceListSize = pieceList.length;
+
+    for (let index = 1; index < pieceListSize; index++) {
+        pieceList[index - 1] = pieceList[index];
+    }
+
+    pieceList[2] =  this.createPieceArray();
+
+    this.piecesList = pieceList;
+
+}
+
+/**
+ * Set current piece shape to the first piece of the pieces list
+ */
+Tetris.prototype.refreshCurrentPieceShape = function(){
+    var fistPieceCopy = JSON.parse(JSON.stringify(this.piecesList[0]));
+    this.currentPieceShape = fistPieceCopy;
+}
