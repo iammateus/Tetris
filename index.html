@@ -5,15 +5,26 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<title>Tetris</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="stylesheet" type="text/css" media="screen" href="./assets/css/tetris.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="./assets/css/tetris.css">
+    <link href="https://fonts.googleapis.com/css?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
-	<div id="tetris"></div>
+    <div id="game-container">
+        <div id="points-display">Points: 0</div>
+        <div id="tetris"></div>
+        <div class="pieces-list-display">
+            <label class="pieces-list-label">Next pieces</label>
+            <div id="pieces-list-container">
+            </div>
+        </div>
+    </div>
 	<script src="./assets/js/Tetris.js"></script>
 	<script src="./assets/js/TetrisVisual.js"></script>
 	<script>
 		var tetris = new Tetris({
-			container: "tetris",
+            container: "tetris",
+            nextPiecesListContainer: "pieces-list-container",
+            pointsDisplay: "points-display",
 			normalSpeed: 300
 		});
 	</script>

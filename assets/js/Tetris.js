@@ -15,7 +15,11 @@ var Tetris = function(params){
 
 	this.config = params;
 	this.config.speed = this.config.normalSpeed;
-	this.visual = new TetrisVisual(params.container);
+	this.visual = new TetrisVisual(
+                        params.container,
+                        params.nextPiecesListContainer,
+                        params.pointsDisplay
+                    );
 	
 	//The main Tetris array with all blocks  
 	this.tetrisBlocks = [];
@@ -25,7 +29,7 @@ var Tetris = function(params){
 
 	//Current piece object
     this.piecesList = [];
-    this.createPiecesList(3);
+    this.createPiecesList(4);
     this.currentPieceShape = [];
 
 	this.createBlocks();
@@ -130,6 +134,7 @@ Tetris.prototype.startPieceCircle = function(){
     }
 
     this.refreshCurrentPieceShape();
+    this.visual.updateNextPiecesListContainer(this.piecesList);
 	
     var pieceLength = this.currentPieceShape[0].length;
     
@@ -515,14 +520,14 @@ Tetris.prototype.createPiecesList = function(listSize){
 Tetris.prototype.refreshPiecesList = function(){
 
     var pieceList = JSON.parse(JSON.stringify(this.piecesList));
-
     var pieceListSize = pieceList.length;
+    var lastPieceListIndex = pieceListSize - 1;
 
     for (let index = 1; index < pieceListSize; index++) {
         pieceList[index - 1] = pieceList[index];
     }
 
-    pieceList[2] =  this.createPieceArray();
+    pieceList[lastPieceListIndex] = this.createPieceArray();
 
     this.piecesList = pieceList;
 

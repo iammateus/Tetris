@@ -1,13 +1,13 @@
 
-var TetrisVisual = function(container){
-	this.container = document.getElementById(container);
+var TetrisVisual = function(container, nextPiecesListContainer, pointsDisplay){
+    this.container = document.getElementById(container);
+    this.nextPiecesListContainer = document.getElementById(nextPiecesListContainer);
+	this.pointsDisplay = document.getElementById(pointsDisplay);;
 	this.createdVisualBlocks = [];
-	this.pointsDisplay = null;
 };
 
 TetrisVisual.prototype.build = function(){
 	this.buildTetrisElement();
-	this.buildPointsDisplay();
 }
 
 TetrisVisual.prototype.buildTetrisElement = function(){
@@ -33,13 +33,6 @@ TetrisVisual.prototype.buildTetrisElement = function(){
 	
 	this.createdVisualBlocks = rows;
 	
-}
-
-TetrisVisual.prototype.buildPointsDisplay = function(){
-	var pointsDisplay = document.createElement("label");
-	pointsDisplay.innerHTML = "Points: 0";
-	document.body.appendChild(pointsDisplay);
-	this.pointsDisplay = pointsDisplay;
 }
 
 TetrisVisual.prototype.updatePointsDisplay = function(points){
@@ -69,4 +62,44 @@ TetrisVisual.prototype.update = function(tetrisBlocks){
 
 TetrisVisual.prototype.createRandomColor = function(){
 	return '#' + Math.random().toString(16).slice(2, 8).toUpperCase();
+}
+
+TetrisVisual.prototype.updateNextPiecesListContainer = function(piecesList){
+    
+    var piecesListSize = piecesList.length;
+    
+    this.nextPiecesListContainer.innerHTML = "";
+
+    for (var piecesCounter = 1; piecesCounter < piecesListSize; piecesCounter++) {
+        
+        var piece = piecesList[piecesCounter];
+
+        var singlePieceContainer = document.createElement("div");
+        singlePieceContainer.classList.add("single-piece-container");
+        singlePieceContainer.style.width = (piece[0].length * 20) + "px";
+
+        for (var pieceRowCounter = 0; pieceRowCounter < piece.length; pieceRowCounter++) {
+            
+            for (var pieceColumnsCounter = 0; pieceColumnsCounter < piece[pieceRowCounter].length; pieceColumnsCounter++) {
+                
+                var newBlock = document.createElement("div");
+                newBlock.classList.add("block");
+
+                var pieceColor = "white";
+
+                if(piece[pieceRowCounter][pieceColumnsCounter]){
+                    pieceColor = piece[pieceRowCounter][pieceColumnsCounter].color;
+                }
+
+                newBlock.style.backgroundColor = pieceColor;
+                singlePieceContainer.appendChild(newBlock);
+                
+            }
+         
+        }
+
+        this.nextPiecesListContainer.appendChild(singlePieceContainer);
+        
+    }
+
 }
