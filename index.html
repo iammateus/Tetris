@@ -9,6 +9,9 @@
     <link href="https://fonts.googleapis.com/css?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
+    <div id="menu-layer">
+        <ul id="menu"></ul>
+    </div>
     <div id="game-container">
         <div id="points-display">Points: 0</div>
         <div id="tetris"></div>
@@ -19,12 +22,15 @@
         </div>
     </div>
 	<script src="./assets/js/Tetris.js"></script>
+	<script src="./assets/js/TetrisMenu.js"></script>
 	<script src="./assets/js/TetrisVisual.js"></script>
 	<script>
 		var tetris = new Tetris({
             container: "tetris",
             nextPiecesListContainer: "pieces-list-container",
             pointsDisplay: "points-display",
+            menuLayer: "menu-layer",
+            menu: "menu",
 			normalSpeed: 300
 		});
 	</script>

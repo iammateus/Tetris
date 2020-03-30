@@ -34,10 +34,14 @@ var Tetris = function(params){
 
 	this.createBlocks();
 	this.visual.build();
-	this.createEventsListeners();
+    this.createEventsListeners();
+    
+    this.menu = new TetrisMenu(
+        params,
+        this
+    );
 
 	//Start first piece circle
-	this.startPieceCircle();
 
 };
 
