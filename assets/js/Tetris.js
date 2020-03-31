@@ -11,7 +11,9 @@ var Tetris = function(params){
         stage: 1,
         //Couter
         finishedPiecesCycleCounter: 0
-	}
+    }
+    
+    this.status = 'start';
 
 	this.config = params;
 	this.config.speed = this.config.normalSpeed;
@@ -41,8 +43,6 @@ var Tetris = function(params){
         this
     );
 
-	//Start first piece circle
-
 };
 
 //Builds main Tetris array (16 x 10)
@@ -69,8 +69,8 @@ Tetris.prototype.createBlocks = function(){
 
 Tetris.prototype.createEventsListeners = function(){
 
-	var self = this;
-
+    var self = this;
+    
 	window.addEventListener("keydown", function(event){
 
 		switch (event.code) {
@@ -103,22 +103,6 @@ Tetris.prototype.createEventsListeners = function(){
 				//console.log(event.code);
 			break;
 		}
-	
-    });
-
-    //@TODO: improve controllers in mobile
-    window.addEventListener("click", function(event){
-
-        var halfInnerWidth = window.innerWidth / 2;
-        var pointerPosition = event.clientX;
-
-        if(pointerPosition > halfInnerWidth){
-            self.movePieceTo("right");
-        }
-
-        if(pointerPosition < halfInnerWidth){
-            self.movePieceTo("left");
-        }
 	
     });
 
@@ -158,6 +142,11 @@ Tetris.prototype.runCircle = function(){
 	var self = this;
 
 	setTimeout(function(){
+
+        if(self.status !== 'running'){
+            self.runCircle();
+            return;
+        }
 
 		self.clearTemporaryBlocks();
 

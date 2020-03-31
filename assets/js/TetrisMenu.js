@@ -3,15 +3,17 @@ var TetrisMenu = function(params, tetris)
 {
     this.params = params;
     this.tetris = tetris;
-    this.status = 'start';
     this.menuLayer = document.getElementById(params.menuLayer);
     this.menu = document.getElementById(params.menu);
     this.buildMenu();
+    this.buildPause();
 };
 
 TetrisMenu.prototype.buildMenu = function()
 {
-    var menuItems = this.getMenuItemsByStatus(this.status);
+    this.menu.innerHTML = "";
+
+    var menuItems = this.getMenuItemsByStatus(this.tetris.status);
 
     for (var menuItemCounter = 0; menuItemCounter < menuItems.length; menuItemCounter++ ) {
         var itemName = menuItems[menuItemCounter];
@@ -23,6 +25,13 @@ TetrisMenu.prototype.buildMenu = function()
         this.menu.appendChild(item);
     }
     
+}
+
+TetrisMenu.prototype.buildPause = function()
+{
+    var pause = document.getElementById(this.params.pause);
+    
+    pause.addEventListener('click', this.pause.bind(this));
 }
 
 TetrisMenu.prototype.getMenuItemsByStatus = function(status)
@@ -48,9 +57,29 @@ TetrisMenu.prototype.executeItemAction = function(itemName){
 };
 
 TetrisMenu.prototype.start = function(event){
+    this.tetris.status = 'running';
     this.tetris.startPieceCircle();
     this.closeMenu();
 };
+
+TetrisMenu.prototype.pause = function(event){
+    this.tetris.status = 'paused';
+    this.openMenu();
+    this.buildMenu();
+};
+
+TetrisMenu.prototype.resume = function(event){
+    this.tetris.status = 'running';
+    this.closeMenu();
+};
+
+TetrisMenu.prototype.restart = function(event){
+    location = location;
+};
+
+TetrisMenu.prototype.openMenu = function(){
+    this.menuLayer.classList.remove('hidden');
+}
 
 TetrisMenu.prototype.closeMenu = function(event){
     this.menuLayer.classList.add('hidden');

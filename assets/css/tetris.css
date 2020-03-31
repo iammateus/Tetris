@@ -21,13 +21,28 @@
 }
 
 #menu{
-    width: 100%;
-    max-width: 300px;
+    width: 150px;
     margin: 0 auto;
     list-style: none;
     display: flex;
     height: 100vh;
     align-items: center;
+    flex-wrap: wrap;
+}
+
+#pause{
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0 auto;
+    display: block;
+    cursor: pointer;
+    border: none;
+    padding: 10px;
+    transition: .6s;
+    font-weight: 400;
+}
+
+#pause:hover{
+    background-color: #7ee8e8;
 }
 
 #menu li{
