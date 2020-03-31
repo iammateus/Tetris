@@ -171,12 +171,7 @@ Tetris.prototype.runCircle = function(){
             //If collision was detected stores current shape position and finish cicle
             if(self.detectIfGameIsOver()){
                 alert("The game is over ;(");
-                //@TODO: Create a better "wanna play again?" screen
-                if(confirm("Wanna play again?")){
-                    location = location;
-                }else{
-                    alert("Thanks for your time!");
-                }
+                self.menu.end();
                 return;
             }
 

@@ -79,6 +79,12 @@ TetrisMenu.prototype.restart = function(event){
     tetris = new Tetris(this.params);
 };
 
+TetrisMenu.prototype.end = function(event){
+    this.tetris.status = 'end';
+    this.openMenu();
+    this.buildMenu();
+};
+
 TetrisMenu.prototype.openMenu = function(){
     this.menuLayer.classList.remove('hidden');
 }
