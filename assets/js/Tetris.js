@@ -43,6 +43,10 @@ var Tetris = function(params){
         this
     );
 
+    if(params.autostart){
+        this.menu.start();
+    }
+
 };
 
 //Builds main Tetris array (16 x 10)
@@ -532,4 +536,8 @@ Tetris.prototype.refreshPiecesList = function(){
 Tetris.prototype.refreshCurrentPieceShape = function(){
     var fistPieceCopy = JSON.parse(JSON.stringify(this.piecesList[0]));
     this.currentPieceShape = fistPieceCopy;
+}
+
+Tetris.prototype.die = function(){
+    this.visual.die();
 }

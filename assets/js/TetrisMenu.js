@@ -74,7 +74,9 @@ TetrisMenu.prototype.resume = function(event){
 };
 
 TetrisMenu.prototype.restart = function(event){
-    location = location;
+    this.tetris.die();
+    this.params.autostart = true;
+    tetris = new Tetris(this.params);
 };
 
 TetrisMenu.prototype.openMenu = function(){

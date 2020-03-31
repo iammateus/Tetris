@@ -2,7 +2,7 @@
 var TetrisVisual = function(container, nextPiecesListContainer, pointsDisplay){
     this.container = document.getElementById(container);
     this.nextPiecesListContainer = document.getElementById(nextPiecesListContainer);
-	this.pointsDisplay = document.getElementById(pointsDisplay);;
+	this.pointsDisplay = document.getElementById(pointsDisplay);
 	this.createdVisualBlocks = [];
 };
 
@@ -102,4 +102,10 @@ TetrisVisual.prototype.updateNextPiecesListContainer = function(piecesList){
         
     }
 
+}
+
+TetrisVisual.prototype.die = function(){
+    this.container.innerHTML = '';
+    this.nextPiecesListContainer.innerHTML = '';
+	this.pointsDisplay.innerHTML = '';
 }
