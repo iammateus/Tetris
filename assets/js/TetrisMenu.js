@@ -5,6 +5,7 @@ var TetrisMenu = function(params, tetris)
     this.tetris = tetris;
     this.menuLayer = document.getElementById(params.menuLayer);
     this.menu = document.getElementById(params.menu);
+    this.menuMessage = document.getElementById(params.menuMessage);
     this.buildMenu();
     this.buildPause();
 };
@@ -24,7 +25,8 @@ TetrisMenu.prototype.buildMenu = function()
 
         this.menu.appendChild(item);
     }
-    
+
+    this.menuMessage.innerHTML = this.getMenuMessageByStatus(this.tetris.status);
 }
 
 TetrisMenu.prototype.buildPause = function()
@@ -52,6 +54,17 @@ TetrisMenu.prototype.getMenuItemsByStatus = function(status)
     return menuItems[status];
 }
 
+TetrisMenu.prototype.getMenuMessageByStatus = function(status)
+{
+    var menuItems = {
+        'start': 'Welcome to Tetris!',
+        'paused': 'Paused',
+        'end': 'The game is over'
+    }
+
+    return menuItems[status];
+}
+    
 TetrisMenu.prototype.executeItemAction = function(itemName){
     this[itemName]();
 };

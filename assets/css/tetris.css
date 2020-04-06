@@ -19,6 +19,15 @@
     visibility: hidden;
 }
 
+
+#menu-message{
+    text-align: center;
+    display: block;
+    color: wheat;
+    font-size: 1.5em;
+    padding: 75px 20px;
+}
+
 #menu{
     width: 150px;
     margin: 0 auto;

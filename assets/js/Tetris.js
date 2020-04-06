@@ -170,7 +170,6 @@ Tetris.prototype.runCircle = function(){
 
             //If collision was detected stores current shape position and finish cicle
             if(self.detectIfGameIsOver()){
-                alert("The game is over ;(");
                 self.menu.end();
                 return;
             }
