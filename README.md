@@ -1,6 +1,8 @@
 
 # Tetris
-A clone of the classic Tetris game, using HTML, CSS and Vanilla Javascript.
+A clone of the classic Tetris game, using HTML, CSS and Vanilla Javascript.  
+
+![Demo image](https://raw.githubusercontent.com/iammateus/Tetris/assets/demo.gif)
 
 ## Installation
 Just clone the repository, the game runs on the browser!
